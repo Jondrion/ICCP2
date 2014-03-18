@@ -5,20 +5,20 @@ module Protein
 
   public proteinType
   type proteinType
-     private
+    private
    
-     integer, public :: Length
-     real(8), allocatable, public :: Position(2,:)
-     real(8), public :: Energy
-     real(8), public :: EtoEdis
+    integer, public :: Length
+    real(8), allocatable, public :: Position(:,:)
+    real(8), public :: Energy
+    real(8), public :: EtoEdis
 
    contains
-     public
+    private
      
-     procedure :: init, destroy
-     procedure :: create
-     procedure :: clone
-     procedure :: get_Position, get_Length, get_Energy, get_EtoEdis
+    procedure, public :: init, destroy
+    procedure, private :: create
+    procedure, public :: clone
+    procedure, public :: get_Position, get_Length, get_Energy, get_EtoEdis
      
    end type
 
@@ -30,18 +30,24 @@ contains
     integer, intent(in) :: Length
     
     this%Length=Length
+    allocate (this%Position(2,this%Length))
+
+    call this%create(Length)
+
   end subroutine
 
   subroutine destroy(this)
     class(proteinType) :: this
 
-    deallocate(this%pos)
+    deallocate(this%Position)
   end subroutine
 
   subroutine create(this, Number)
 
     class(proteinType) :: this
+    integer :: i
     integer, intent(in) :: Number
+
 
     do i=1, Number
       this%Position(1,i)=1+i
@@ -50,19 +56,19 @@ contains
 
   end subroutine
 
-  subroutine clone(this,clone)
+  subroutine clone(this,cloned)
 
     class(proteinType) :: this
-    class(proteinType), intent(out) :: clone
+    class(proteinType), intent(out), allocatable :: cloned
 
-    clone=this
+    allocate (cloned, source=this)
 
   end subroutine
 
   subroutine get_Position(this, Position)
 
     class(proteinType) :: this
-    integer, intent(out) :: Position
+    real(8), allocatable, intent(out) :: Position(:,:)
 
     Position=this%Position
 
@@ -71,7 +77,7 @@ contains
   subroutine get_Length(this, Length)
 
     class(proteinType) :: this
-    integer, intent(out) :: Length
+    real(8), intent(out) :: Length
 
     Length=this%Length
 
@@ -80,7 +86,7 @@ contains
   subroutine get_Energy(this, Energy)
 
     class(proteinType) :: this
-    integer, intent(out) :: Energy
+    real(8), intent(out) :: Energy
 
     Energy=this%Energy
 
@@ -89,12 +95,11 @@ contains
   subroutine get_EtoEdis(this, EtoEdis)
 
     class(proteinType) :: this
-    integer, intent(out) :: EtoEdis
+    real(8), intent(out) :: EtoEdis
 
     EtoEdis=this%EtoEdis
 
   end subroutine
 
 
-
-
+end module Protein

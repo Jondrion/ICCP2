@@ -12,6 +12,7 @@ LINK = $(FC) $(LDFLAGS)
 OBJS = 
 OBJS += plot.o
 OBJS += parameters.o
+OBJS += Protein.o
 OBJS += poly.o
 
 all: poly
