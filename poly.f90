@@ -14,8 +14,8 @@ program Poly
   call prot%init(10)
   call prot%get_Position(Position)
   print *, "Position"
-  print *, Position(:,:)
-  ! call plot! 
+  print *, Position(0,:)
+  call polymer%plot 
 
   call pol%init(10)
   call pol%get_Position(Position)
