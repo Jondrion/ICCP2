@@ -1,6 +1,6 @@
 FC = gfortran
-FFLAGS = 
-LDFLAGS =
+FFLAGS =
+LDFLAGS = 
 LIBS = -llapack
 FFLAGS += $(shell pkg-config --cflags plplotd-f95)
 LIBS += $(shell pkg-config --libs plplotd-f95)
