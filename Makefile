@@ -1,6 +1,6 @@
 FC = gfortran
-FFLAGS = -Wall -Wextra -march=native -O3
-LDFLAGS = -L$HOME/mylib
+FFLAGS = 
+LDFLAGS =
 LIBS = -llapack
 FFLAGS += $(shell pkg-config --cflags plplotd-f95)
 LIBS += $(shell pkg-config --libs plplotd-f95)
@@ -13,6 +13,7 @@ OBJS =
 OBJS += plot.o
 OBJS += parameters.o
 OBJS += Protein.o
+OBJS += polymer.o
 OBJS += poly.o
 
 all: poly
