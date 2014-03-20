@@ -1,9 +1,9 @@
 module polymer
-    use plplot
+  use plplot
 
-    implicit none
+  implicit none
 
-    real(8), parameter :: PI = 4 * atan(1d0)
+  real(8), parameter :: PI = 4 * atan(1d0)
 
   private
 
@@ -21,9 +21,11 @@ module polymer
      
     procedure, public :: init, destroy
     procedure, private :: create, calc_Angles
+    procedure, private :: choose_Angle, cumsum
     procedure, public :: get_Position, get_Length
     procedure, public :: plot
     procedure, private :: plot_polymer
+
      
    end type
 
@@ -57,7 +59,7 @@ contains
   ! -- creating the polymer by adding enough beads until length is reached, this routine is recursive
   recursive subroutine create(this, PolWeight, Number)
 
-	class(polymerType) :: this
+    class(polymerType) :: this
     real(8) :: Angle(1,this%NumberAngles)
     integer, intent(in) :: Number
     real(8), intent(in) :: PolWeight
@@ -90,43 +92,73 @@ contains
 
   subroutine calc_Angles(this, Angle, N)
 
-  	class(polymerType) :: this
-  	integer, intent(in) :: N
-  	integer :: i
-  	real(8), intent(out) :: Angle(1,N)
-  	real(8) :: Interval
-  	real(8) :: Offset
+    class(polymerType) :: this
+    integer, intent(in) :: N
+    integer :: i
+    real(8), intent(out) :: Angle(1,N)
+    real(8) :: Interval
+    real(8) :: Offset
 
-  	Interval = 2 * PI / N
-  	call RANDOM_NUMBER(Offset)
-  	Offset = Offset * Interval
-  	Angle(1,:) = [(Offset + ((i-1)*Interval), i=1,N)]
+    Interval = 2 * PI / N
+    call RANDOM_NUMBER(Offset)
+    Offset = Offset * Interval
+    Angle(1,:) = [(Offset + ((i-1)*Interval), i=1,N)]
 
   end subroutine
 
 
   subroutine calc_Energy(this, Angle, N, E)
   	
-  	class(polymerType) :: this
-  	real(8), intent(in) :: Angle(1,this%NumberAngles)
-  	integer, intent(in) :: N
-  	real(8) :: Ri(2)
-  	real(8) :: Rsqi
-  	real(8) :: rm2,rm6,rm12
-  	real(8), intent(out) :: E
+    class(polymerType) :: this
+    real(8), intent(in) :: Angle(1,this%NumberAngles)
+    integer, intent(in) :: N
+    real(8) :: Ri(2)
+    real(8) :: Rsqi
+    real(8) :: rm2,rm6,rm12
+    real(8), intent(out) :: E
 
-  	integer :: i
+    integer :: i
 
-  	E=0
+    E=0
 
-  	do i = 1, N-1, 1
-  		Ri = this%Position(:,N) - this%Position(:,i)
-  		Rsqi = dot_product(Ri,Ri)
-  		rm2 = 1.d0/Rsqi
-  		rm6 = rm2**3
-  		rm12 = rm6**2
-  		E = E + 4.d0 * ( rm12 - rm6 )
-  	end do
+    do i = 1, N-1, 1
+      Ri = this%Position(:,N) - this%Position(:,i)
+      Rsqi = dot_product(Ri,Ri)
+      rm2 = 1.d0/Rsqi
+      rm6 = rm2**3
+      rm12 = rm6**2
+      E = E + 4.d0 * ( rm12 - rm6 )
+    end do
+
+  end subroutine
+
+  subroutine choose_Angle(this, Angles, Norm_Weights, output_Angle)
+    class(polymerType) :: this
+    real(8), intent(inout) :: Angles(this%NumberAngles), Norm_Weights(this%NumberAngles)
+    real(8), intent(out) :: output_Angle
+    real(8) :: Roulette
+    integer :: angle_number
+
+    call RANDOM_NUMBER(Roulette)
+    call this%cumsum(Norm_Weights)
+
+    where (Norm_Weights<Roulette) Norm_Weights=1._8
+    where (Norm_Weights>=Roulette) Norm_Weights=0._8
+
+    angle_number = sum(nint(Norm_Weights))+1
+
+    output_Angle = Angles(angle_number)
+
+  end subroutine
+
+  subroutine cumsum(this, Array)
+    class(polymerType) :: this
+    real(8), intent(inout) :: Array(this%NumberAngles)
+    integer :: i
+    
+    do i=1, this%NumberAngles-1
+      Array(i+1)=Array(i+1)+Array(i)
+    end do
 
   end subroutine
 
@@ -191,7 +223,7 @@ contains
     
     call plcol0(7)
     call plenv(min, max, min, max, 0, 0)
-    call pllab("x", "y", "polymer")
+    call pllab("x", "y", "Polymer")
   
   
     call plcol0(1)
