@@ -62,29 +62,50 @@ contains
     real(8) :: Angle(this%NumberAngles)
     real(8) :: Energy(this%NumberAngles)
     integer, intent(in) :: Number
-    real(8), intent(in) :: PolWeight
+    real(8), intent(inout) :: PolWeight
     real(8) :: Weights(this%NumberAngles)
     real(8) :: Norm_Weights(this%NumberAngles)
     real(8) :: SumWeights
+    real(8) :: New_Angle
+    real(8) :: Old_Angle
+    integer :: i
 
     ! -- Calculate weights w_j^L and their product W^L
     call this%calc_Angles(Angle,this%NumberAngles)
-    print *, "Angles"
-    print *, Angle(:)/PI
     call this%calc_Energy(Angle,Number,Energy)
     call this%calc_Weights(Energy,Weights)
 
     SumWeights = SUM(Weights)
 
     Norm_Weights = Weights/SumWeights
-    print *, "Weights"
+
+
+    ! -- test the choose angle algorithm
+    print *, "Angles"
+    print *, Angle(:)
+    print *, "Probabilities"
     print *, Norm_Weights(:)
 
+    do i = 1, 100, 1
+      call this%choose_Angle(Angle, Norm_Weights, Old_Angle)
+      New_Angle=New_Angle+Old_Angle
+    end do
+
+    print *, "Expected value of chosen angle"
+    print *, New_Angle/100
+    ! -- End test
+
+
+    ! -- choose angle for new bead
+
+    call this%choose_Angle(Angle, Norm_Weights, New_Angle)
+
     ! -- Add bead number L
-    this%Position(1,Number)=0
-    this%Position(2,Number)=Number-1
+    this%Position(1,Number)=this%Position(1,Number-1)+SIN(New_Angle)
+    this%Position(2,Number)=this%Position(2,Number-1)+COS(New_Angle)
 
     ! -- Update PolWeight
+    PolWeight=PolWeight*SumWeights
 
     ! -- recursive part
     if ( Number < this%Length ) then
