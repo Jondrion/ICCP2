@@ -2,7 +2,7 @@ module polymer
   use plplot
 
   implicit none
-  
+
   real(8), parameter :: PI = 4 * atan(1d0)
 
   private
