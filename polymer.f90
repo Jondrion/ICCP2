@@ -20,7 +20,7 @@ module polymer
     private
      
     procedure, public :: init, destroy
-    procedure, private :: create, calc_Angles
+    procedure, private :: create, calc_Angles, calc_Energy, calc_Weights
     procedure, public :: get_Position, get_Length
     procedure, public :: plot
     procedure, private :: plot_polymer
@@ -41,13 +41,16 @@ contains
     ! -- create inital two beads
     this%Position(1,1)=0
     this%Position(2,1)=0
-    this%Position(1,2)=1
+    this%Position(1,2)=0
     this%Position(2,2)=1
 
     ! -- set polymer weight to 1
     this%PolWeight=1
 
     this%NumberAngles=10
+
+    print *, "COS(PI/4)"
+    print *, COS(PI/4)
 
     call this%create(this%PolWeight, 3)
 
@@ -58,17 +61,29 @@ contains
   recursive subroutine create(this, PolWeight, Number)
 
 	class(polymerType) :: this
-    real(8) :: Angle(1,this%NumberAngles)
+    real(8) :: Angle(this%NumberAngles)
+    real(8) :: Energy(this%NumberAngles)
     integer, intent(in) :: Number
     real(8), intent(in) :: PolWeight
+    real(8) :: Weights(this%NumberAngles)
+    real(8) :: Norm_Weights(this%NumberAngles)
+    real(8) :: SumWeights
 
     ! -- Calculate weights w_j^L and their product W^L
+    call this%calc_Angles(Angle,this%NumberAngles)
+    print *, "Angles"
+    print *, Angle(:)/PI
+    call this%calc_Energy(Angle,Number,Energy)
+    call this%calc_Weights(Energy,Weights)
+
+    SumWeights = SUM(Weights)
+
+    Norm_Weights = Weights/SumWeights
+    print *, "Weights"
+    print *, Norm_Weights(:)
 
     ! -- Add bead number L
-    call this%calc_Angles(Angle,this%NumberAngles)
-
-    ! 
-    this%Position(1,Number)=Number-1
+    this%Position(1,Number)=0
     this%Position(2,Number)=Number-1
 
     ! -- Update PolWeight
@@ -93,14 +108,14 @@ contains
   	class(polymerType) :: this
   	integer, intent(in) :: N
   	integer :: i
-  	real(8), intent(out) :: Angle(1,N)
+  	real(8), intent(out) :: Angle(N)
   	real(8) :: Interval
   	real(8) :: Offset
 
   	Interval = 2 * PI / N
   	call RANDOM_NUMBER(Offset)
   	Offset = Offset * Interval
-  	Angle(1,:) = [(Offset + ((i-1)*Interval), i=1,N)]
+  	Angle(:) = [(Offset + ((i-1)*Interval), i=1,N)]
 
   end subroutine
 
@@ -108,25 +123,46 @@ contains
   subroutine calc_Energy(this, Angle, N, E)
   	
   	class(polymerType) :: this
-  	real(8), intent(in) :: Angle(1,this%NumberAngles)
+  	real(8), intent(in) :: Angle(this%NumberAngles)
   	integer, intent(in) :: N
   	real(8) :: Ri(2)
   	real(8) :: Rsqi
   	real(8) :: rm2,rm6,rm12
-  	real(8), intent(out) :: E
+  	real(8) :: new_pos(2,this%NumberAngles)
+  	real(8), intent(out) :: E(this%NumberAngles)
 
-  	integer :: i
+  	integer :: i,j
 
   	E=0
 
-  	do i = 1, N-1, 1
-  		Ri = this%Position(:,N) - this%Position(:,i)
-  		Rsqi = dot_product(Ri,Ri)
-  		rm2 = 1.d0/Rsqi
-  		rm6 = rm2**3
-  		rm12 = rm6**2
-  		E = E + 4.d0 * ( rm12 - rm6 )
+  	! -- calculate position given the angle
+  	new_pos(1,:) = this%Position(1,N-1) + SIN(Angle(:))
+  	new_pos(2,:) = this%Position(2,N-1) + COS(Angle(:))
+
+  	! -- loop over all angles
+  	do j = 1, this%NumberAngles, 1
+  		! -- loop over all existing elements
+  		do i = 1, N-1, 1
+	
+  			Ri = new_pos(:,j) - this%Position(:,i)
+  			Rsqi = dot_product(Ri,Ri)
+  			rm2 = 1.d0/Rsqi
+  			rm6 = rm2**3
+  			rm12 = rm6**2
+  			E(j) = E(j) + 4.d0 * ( rm12 - rm6 )
+  		end do
   	end do
+
+  end subroutine
+
+
+  subroutine calc_Weights(this, Energy, Weights)
+  	
+  	class(polymerType) :: this
+  	real(8), intent(out) :: Weights(this%NumberAngles)
+  	real(8), intent(in) :: Energy(this%NumberAngles)
+
+  	Weights(:) = EXP(-Energy(:))
 
   end subroutine
 
