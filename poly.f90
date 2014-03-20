@@ -11,10 +11,8 @@ program Poly
   call parameters(density,temperature)
   print *, "Density=",density, "Temperature=",temperature
 
-  call pol%init(10)
+  call pol%init(100)
   call pol%get_Position(Position)
-  print *, "Position"
-  print *, Position(:,:)
   call pol%plot
   
 end program
