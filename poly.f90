@@ -16,5 +16,5 @@ program Poly
   print *, "Position"
   print *, Position(:,:)
   call pol%plot
-
+  
 end program

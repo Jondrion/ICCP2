@@ -31,7 +31,7 @@ module polymer
 contains
   
   ! -- initialize the polymer: allocate position array of certain length and create the first two beads
-  subroutine init(this,Length)
+  subroutine init(this, Length)
   
     class(polymerType) :: this
     integer, intent(in) :: Length
@@ -67,8 +67,7 @@ contains
     real(8) :: Norm_Weights(this%NumberAngles)
     real(8) :: SumWeights
     real(8) :: New_Angle
-    real(8) :: Old_Angle
-    integer :: i
+  
 
     ! -- Calculate weights w_j^L and their product W^L
     call this%calc_Angles(Angle,this%NumberAngles)
@@ -80,26 +79,12 @@ contains
     Norm_Weights = Weights/SumWeights
 
 
-    ! -- test the choose angle algorithm
-    print *, "Angles"
-    print *, Angle(:)
-    print *, "Probabilities"
-    print *, Norm_Weights(:)
-
-    do i = 1, 100, 1
-      call this%choose_Angle(Angle, Norm_Weights, Old_Angle)
-      New_Angle=New_Angle+Old_Angle
-    end do
-
-    print *, "Expected value of chosen angle"
-    print *, New_Angle/100
-    ! -- End test
-
 
     ! -- choose angle for new bead
 
     call this%choose_Angle(Angle, Norm_Weights, New_Angle)
 
+   
     ! -- Add bead number L
     this%Position(1,Number)=this%Position(1,Number-1)+SIN(New_Angle)
     this%Position(2,Number)=this%Position(2,Number-1)+COS(New_Angle)
@@ -188,19 +173,21 @@ contains
   subroutine choose_Angle(this, Angles, Norm_Weights, output_Angle)
 
     class(polymerType) :: this
-    real(8), intent(inout) :: Angles(this%NumberAngles), Norm_Weights(this%NumberAngles)
+    real(8), intent(inout) :: Norm_Weights(this%NumberAngles)
+    real(8), intent(in) :: Angles(this%NumberAngles)
     real(8), intent(out) :: output_Angle
     real(8) :: Roulette
     integer :: angle_number
 
     call RANDOM_NUMBER(Roulette)
     call this%cumsum(Norm_Weights)
-
+    
     where (Norm_Weights<Roulette) Norm_Weights=1._8
-    where (Norm_Weights>=Roulette) Norm_Weights=0._8
+    where (Norm_Weights<1._8) Norm_Weights=0._8
+    Norm_Weights(this%NumberAngles)=0._8
 
     angle_number = sum(nint(Norm_Weights))+1
-
+    
     output_Angle = Angles(angle_number)
 
   end subroutine
