@@ -10,9 +10,7 @@ COMPILE = $(FC) $(FFLAGS)
 LINK = $(FC) $(LDFLAGS)
 
 OBJS = 
-OBJS += plot.o
 OBJS += parameters.o
-OBJS += Protein.o
 OBJS += polymer.o
 OBJS += poly.o
 
