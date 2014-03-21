@@ -12,6 +12,7 @@ module polymer
     private
    
     integer, private :: Length
+    integer, private :: Population, PopulationLim
     integer, private :: NumberAngles
     real(8), private :: PolWeight
     real(8), allocatable, private :: Position(:,:)
@@ -48,7 +49,13 @@ contains
     ! -- set polymer weight to 1
     this%PolWeight=1
 
-    this%NumberAngles=4
+    this%NumberAngles=6
+
+    this%PopulationLim=10000
+
+    this%Population=1
+
+    print *, "UpLim: ", 10._8**10
 
     call this%create(this%PolWeight, 3)
 
@@ -63,11 +70,16 @@ contains
     real(8) :: Energy(this%NumberAngles)
     integer, intent(in) :: Number
     real(8), intent(inout) :: PolWeight
+    real(8) :: NewWeight
     real(8) :: Weights(this%NumberAngles)
     real(8) :: Norm_Weights(this%NumberAngles)
     real(8) :: SumWeights
     real(8) :: New_Angle
+    real(8) :: R
   
+!     print *, "Population: ", this%Population
+!     print *, "Number: ", Number
+
 
     ! -- Calculate weights w_j^L and their product W^L
     call this%calc_Angles(Angle,this%NumberAngles)
@@ -92,9 +104,29 @@ contains
 
     ! -- recursive part
     if ( Number < this%Length ) then
-      call this%create(PolWeight, Number+1)
+      ! -- kill if necessar
+      if ( PolWeight < 1 ) then
+        call RANDOM_NUMBER(R)
+        if ( R < 0.5 ) then
+          NewWeight = 2 * PolWeight
+          call this%create(NewWeight, Number+1)
+        else
+          this%Population = this%Population-1
+        end if
+      ! -- clone if necessary
+      else if ( PolWeight > 10._8**20 .and. this%Population < this%PopulationLim ) then
+        this%Population = this%Population+1
+        NewWeight = 0.5 * PolWeight
+        call this%create(NewWeight, Number+1)
+        NewWeight = 0.5 * PolWeight
+        call this%create(NewWeight, Number+1)
+      else
+        call this%create(PolWeight, Number+1)
+      end if
     else
-      print *, "Polymer Weight", PolWeight
+      print *, "Final Polymer Weight: ", PolWeight
+      print *, "End to end distance: "
+      print *, SQRT(dot_product((this%Position(:,Number) - this%Position(:,1)),(this%Position(:,Number) - this%Position(:,1))))
     end if
 
   end subroutine
@@ -177,16 +209,21 @@ contains
     real(8), intent(in) :: Angles(this%NumberAngles)
     real(8), intent(out) :: output_Angle
     real(8) :: Roulette
-    integer :: angle_number
+    integer :: angle_number, i
 
     call RANDOM_NUMBER(Roulette)
     call this%cumsum(Norm_Weights)
     
-    where (Norm_Weights<Roulette) Norm_Weights=1._8
-    where (Norm_Weights<1._8) Norm_Weights=0._8
-    Norm_Weights(this%NumberAngles)=0._8
+    i=1
+    do while ( Norm_Weights(i) < Roulette )
+      i=i+1
+    end do
 
-    angle_number = sum(nint(Norm_Weights))+1
+!     where (Norm_Weights<Roulette) Norm_Weights=1._8
+!     where (Norm_Weights<1._8) Norm_Weights=0._8
+!     Norm_Weights(this%NumberAngles)=0._8
+
+    angle_number = i
     
     output_Angle = Angles(angle_number)
 
@@ -228,7 +265,8 @@ contains
 
     class(polymerType) :: this
 
-    call plsdev("xcairo")
+    call plsdev("pdf")
+    call plsfnam("test.pdf")
 
     ! gnuplot color scheme
     call plscol0(0, 255, 255, 255)  ! white
