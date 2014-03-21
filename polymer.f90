@@ -48,7 +48,7 @@ contains
     ! -- set polymer weight to 1
     this%PolWeight=1
 
-    this%NumberAngles=10
+    this%NumberAngles=4
 
     call this%create(this%PolWeight, 3)
 
@@ -77,9 +77,7 @@ contains
     SumWeights = SUM(Weights)
 
     Norm_Weights = Weights/SumWeights
-
-
-
+    
     ! -- choose angle for new bead
 
     call this%choose_Angle(Angle, Norm_Weights, New_Angle)
@@ -95,6 +93,8 @@ contains
     ! -- recursive part
     if ( Number < this%Length ) then
       call this%create(PolWeight, Number+1)
+    else
+      print *, "Polymer Weight", PolWeight
     end if
 
   end subroutine
