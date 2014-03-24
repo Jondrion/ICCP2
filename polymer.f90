@@ -57,8 +57,10 @@ contains
 
     print *, "UpLim: ", 10._8**10
 
+    open (100+Length, ACTION="write", STATUS="unknown", Position="append")
     call this%create(this%PolWeight, 3)
-
+    close (100+Length)
+    print *, this%Population
   end subroutine
 
 
@@ -76,6 +78,8 @@ contains
     real(8) :: SumWeights
     real(8) :: New_Angle
     real(8) :: R
+    real(8) :: EndtoEnd
+    real(8) :: Gyration
   
 !     print *, "Population: ", this%Population
 !     print *, "Number: ", Number
@@ -102,10 +106,12 @@ contains
     ! -- Update PolWeight
     PolWeight=PolWeight*SumWeights
 
+    
+
     ! -- recursive part
     if ( Number < this%Length ) then
       ! -- kill if necessar
-      if ( PolWeight < 1 ) then
+      if ( PolWeight < 0 ) then
         call RANDOM_NUMBER(R)
         if ( R < 0.5 ) then
           NewWeight = 2 * PolWeight
@@ -114,7 +120,7 @@ contains
           this%Population = this%Population-1
         end if
       ! -- clone if necessary
-      else if ( PolWeight > 10._8**20 .and. this%Population < this%PopulationLim ) then
+      else if ( PolWeight > 10._8**5 .and. this%Population < this%PopulationLim ) then
         this%Population = this%Population+1
         NewWeight = 0.5 * PolWeight
         call this%create(NewWeight, Number+1)
@@ -124,9 +130,15 @@ contains
         call this%create(PolWeight, Number+1)
       end if
     else
+
       print *, "Final Polymer Weight: ", PolWeight
       print *, "End to end distance: "
-      print *, SQRT(dot_product((this%Position(:,Number) - this%Position(:,1)),(this%Position(:,Number) - this%Position(:,1))))
+      EndtoEnd=SQRT(dot_product((this%Position(:,Number) - this%Position(:,1)),(this%Position(:,Number) - this%Position(:,1))))
+      print *, EndtoEnd
+      
+      write (100+this%Length, "(F15.4,F5.4,I10)" ) EndtoEnd, Gyration, this%Population
+     
+
     end if
 
   end subroutine
