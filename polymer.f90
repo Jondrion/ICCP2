@@ -182,10 +182,11 @@ contains
       do i = 1, N-1, 1
         Ri = new_pos(:,j) - this%Position(:,i)
         Rsqi = dot_product(Ri,Ri)
+        
         rm2 = 1.d0/Rsqi
         rm6 = rm2**3
         rm12 = rm6**2
-        E(j) = E(j) + 4.d0 * ( rm12 - rm6 )
+        E(j) = E(j) + ( rm12 - 2._8 * rm6 )
       end do
     end do
 
@@ -210,22 +211,16 @@ contains
     real(8), intent(in) :: Angles(this%NumberAngles)
     real(8), intent(out) :: output_Angle
     real(8) :: Roulette
-    integer :: angle_number, i
+    integer :: angle_number
 
     call RANDOM_NUMBER(Roulette)
     call this%cumsum(Norm_Weights)
     
-    i=1
-    do while ( Norm_Weights(i) < Roulette )
-      i=i+1
+    angle_number=1
+    do while (Norm_Weights(angle_number)<Roulette)
+      angle_number=angle_number+1
     end do
-
-!     where (Norm_Weights<Roulette) Norm_Weights=1._8
-!     where (Norm_Weights<1._8) Norm_Weights=0._8
-!     Norm_Weights(this%NumberAngles)=0._8
-
-    angle_number = i
-    
+      
     output_Angle = Angles(angle_number)
 
   end subroutine
@@ -300,8 +295,7 @@ contains
 
     class(polymerType) :: this
 
-    call plsdev("pdf")
-    call plsfnam("test.pdf")
+    call plsdev("xcairo")
 
     ! gnuplot color scheme
     call plscol0(0, 255, 255, 255)  ! white
@@ -328,18 +322,25 @@ contains
 
     class(polymerType) :: this
     real(8) :: min, max,border
-  
+    Character(50)::  weightstring
+
     min = minval(this%Position)
     max = maxval(this%Position)
   
     border=(max-min)/20
     min = min - border
     max = max + border
+
+    
+    
+    
+    Write( weightstring, '(A7,ES10.3)' )  "Weight: ",this%PolWeight
+    
+
     
     call plcol0(7)
     call plenv(min, max, min, max, 0, 0)
-    call pllab("x", "y", "Polymer")
-  
+    call pllab("x", "y", weightstring)
   
     call plcol0(1)
     call plline(this%Position(1,:),this%Position(2,:))
