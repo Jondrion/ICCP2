@@ -21,7 +21,7 @@ module polymer
     private
      
     procedure, public :: init, destroy
-    procedure, private :: create, calc_Angles, calc_Energy, calc_Weights
+    procedure, private :: create, calc_Angles, calc_Energy, calc_Weights, calc_Gyradius, calc_EToE
     procedure, private :: choose_Angle, cumsum
     procedure, public :: get_Position, get_Length
     procedure, public :: plot
@@ -112,6 +112,7 @@ contains
           call this%create(NewWeight, Number+1)
         else
           this%Population = this%Population-1
+
         end if
       ! -- clone if necessary
       else if ( PolWeight > 10._8**20 .and. this%Population < this%PopulationLim ) then
@@ -240,6 +241,40 @@ contains
     end do
 
   end subroutine
+
+
+  subroutine calc_Gyradius(this, Position, Gyradius)
+
+    class(polymerType) :: this
+    real(8), allocatable, intent(in) :: Position(:,:)
+    real(8), intent(out) :: Gyradius
+    real(8) :: Rmean(2)
+    integer :: i
+
+    Rmean = 0._8
+    Gyradius = 0._8
+
+    do i = 1, this%Length
+      Rmean = Rmean + this%Position(:,i)
+    end do
+    Rmean = Rmean/this%Length
+
+    do i = 1, this%Length
+      Gyradius = Gyradius + dot_product((this%Position(:,i)-Rmean),(this%Position(:,i)-Rmean))
+    end do
+    Gyradius = Gyradius/this%Length
+
+  end subroutine calc_Gyradius
+
+  subroutine calc_EToE(this, Position, EToE)
+
+    class(polymerType) :: this
+    real(8), allocatable, intent(in) :: Position(:,:)
+    real(8), intent(out) :: EToE
+
+    EToE = SQRT(dot_product((this%Position(:,this%Length)-this%Position(:,1)),(this%Position(:,this%Length)-this%Position(:,1))))
+    
+  end subroutine calc_EToE
 
 
   subroutine get_Position(this, Position)
