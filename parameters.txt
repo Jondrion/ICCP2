@@ -1,2 +1,4 @@
-10.5 density
-5.8 temperature
+1 temperature
+0.25 epsilon
+0.8 sigma
+

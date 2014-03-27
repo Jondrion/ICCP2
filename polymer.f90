@@ -14,7 +14,7 @@ module polymer
     integer, private :: Length
     integer, private :: Population, PopulationLim
     integer, private :: NumberAngles
-    real(8), private :: PolWeight
+    real(8), private :: PolWeight, temperature, epsilon, sigma
     real(8), allocatable, private :: Position(:,:)
 
    contains
@@ -32,13 +32,19 @@ module polymer
 contains
   
   ! -- initialize the polymer: allocate position array of certain length and create the first two beads
-  subroutine init(this, Length)
+  subroutine init(this, Length, temperature, epsilon, sigma)
   
     class(polymerType) :: this
     integer, intent(in) :: Length
+    real(8), intent(in) :: temperature, epsilon, sigma
     
     this%Length=Length
     allocate (this%Position(2,this%Length))
+
+    this%temperature=temperature
+
+    this%epsilon=epsilon
+    this%sigma=sigma
 
     ! -- create inital two beads
     this%Position(1,1)=0
@@ -51,16 +57,16 @@ contains
 
     this%NumberAngles=6
 
-    this%PopulationLim=10000
+    this%PopulationLim=100
 
     this%Population=1
 
     print *, "UpLim: ", 10._8**10
 
-    open (100+Length, ACTION="write", STATUS="unknown", Position="append")
+    open (100, ACTION="write", STATUS="unknown", Position="append")
     call this%create(this%PolWeight, 3)
-    close (100+Length)
-    print *, this%Population
+    close (100)
+    print *, "pop",this%Population, "sigma", this%sigma, "epsilon", this%epsilon
   end subroutine
 
 
@@ -79,7 +85,7 @@ contains
     real(8) :: New_Angle
     real(8) :: R
     real(8) :: EndtoEnd
-    real(8) :: Gyration
+    real(8) :: Gyradius
   
 !     print *, "Population: ", this%Population
 !     print *, "Number: ", Number
@@ -98,7 +104,8 @@ contains
 
     call this%choose_Angle(Angle, Norm_Weights, New_Angle)
 
-   
+    
+
     ! -- Add bead number L
     this%Position(1,Number)=this%Position(1,Number-1)+SIN(New_Angle)
     this%Position(2,Number)=this%Position(2,Number-1)+COS(New_Angle)
@@ -106,6 +113,10 @@ contains
     ! -- Update PolWeight
     PolWeight=PolWeight*SumWeights
 
+    ! -- write End to end and gyradius to a file
+    call this%calc_EToE(EndtoEnd, Number-1)
+    call this%calc_Gyradius(Gyradius, Number-1)
+    write (100, "(I10,F10.4,F10.4,I10)" ) Number, EndtoEnd, Gyradius, this%Population
     
 
     ! -- recursive part
@@ -133,12 +144,6 @@ contains
     else
 
       print *, "Final Polymer Weight: ", PolWeight
-      print *, "End to end distance: "
-      EndtoEnd=SQRT(dot_product((this%Position(:,Number) - this%Position(:,1)),(this%Position(:,Number) - this%Position(:,1))))
-      print *, EndtoEnd
-      
-      write (100+this%Length, "(F15.4,F5.4,I10)" ) EndtoEnd, Gyration, this%Population
-     
 
     end if
 
@@ -198,7 +203,8 @@ contains
         rm2 = 1.d0/Rsqi
         rm6 = rm2**3
         rm12 = rm6**2
-        E(j) = E(j) + ( rm12 - 2._8 * rm6 )
+        ! Calculate energy with sigma=0.8 and epsilon=0.25
+        E(j) = E(j) + 4._8 * this%epsilon * ( this%sigma**12 * rm12 - this%sigma**6 * rm6 )
       end do
     end do
 
@@ -211,7 +217,7 @@ contains
     real(8), intent(out) :: Weights(this%NumberAngles)
     real(8), intent(in) :: Energy(this%NumberAngles)
 
-    Weights(:) = EXP(-Energy(:))
+    Weights(:) = EXP(-Energy(:)/this%temperature)
 
   end subroutine
 
@@ -250,36 +256,37 @@ contains
   end subroutine
 
 
-  subroutine calc_Gyradius(this, Position, Gyradius)
+  subroutine calc_Gyradius(this, Gyradius, Number)
 
     class(polymerType) :: this
-    real(8), allocatable, intent(in) :: Position(:,:)
+    
     real(8), intent(out) :: Gyradius
+    integer, intent(in) :: Number
     real(8) :: Rmean(2)
     integer :: i
 
     Rmean = 0._8
     Gyradius = 0._8
 
-    do i = 1, this%Length
+    do i = 1, Number
       Rmean = Rmean + this%Position(:,i)
     end do
-    Rmean = Rmean/this%Length
-
-    do i = 1, this%Length
+    Rmean = Rmean/Number
+    print *, "Rm",Rmean
+    do i = 1, Number
       Gyradius = Gyradius + dot_product((this%Position(:,i)-Rmean),(this%Position(:,i)-Rmean))
     end do
-    Gyradius = Gyradius/this%Length
+    Gyradius = Gyradius/Number
 
   end subroutine calc_Gyradius
 
-  subroutine calc_EToE(this, Position, EToE)
+  subroutine calc_EToE(this, EToE, Number)
 
     class(polymerType) :: this
-    real(8), allocatable, intent(in) :: Position(:,:)
+    integer, intent(in) :: Number    
     real(8), intent(out) :: EToE
 
-    EToE = SQRT(dot_product((this%Position(:,this%Length)-this%Position(:,1)),(this%Position(:,this%Length)-this%Position(:,1))))
+    EToE = SQRT(dot_product((this%Position(:,Number)-this%Position(:,1)),(this%Position(:,Number)-this%Position(:,1))))
     
   end subroutine calc_EToE
 
