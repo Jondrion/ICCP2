@@ -14,11 +14,9 @@ program Poly
   print *, "temperature=",temperature, "epsilon=",epsilon, "sigma", sigma
 
  
-  call pol%init(30,temperature, epsilon, sigma)
+  call pol%init(100,temperature, epsilon, sigma)
   
- 
-
-  
+   
   call pol%get_Position(Position)
 
   call pol%plot

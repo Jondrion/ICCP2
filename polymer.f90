@@ -57,13 +57,13 @@ contains
 
     this%NumberAngles=6
 
-    this%PopulationLim=100
+    this%PopulationLim=1000
 
     this%Population=1
 
     print *, "UpLim: ", 10._8**10
 
-    open (100, ACTION="write", STATUS="unknown", Position="append")
+    open (100, file="polymerdata.txt", ACTION="write", STATUS="unknown", Position="append")
     call this%create(this%PolWeight, 3)
     close (100)
     print *, "pop",this%Population, "sigma", this%sigma, "epsilon", this%epsilon
@@ -114,8 +114,8 @@ contains
     PolWeight=PolWeight*SumWeights
 
     ! -- write End to end and gyradius to a file
-    call this%calc_EToE(EndtoEnd, Number-1)
-    call this%calc_Gyradius(Gyradius, Number-1)
+    call this%calc_EToE(EndtoEnd, Number)
+    call this%calc_Gyradius(Gyradius, Number)
     write (100, "(I10,F10.4,F10.4,I10)" ) Number, EndtoEnd, Gyradius, this%Population
     
 
@@ -272,7 +272,7 @@ contains
       Rmean = Rmean + this%Position(:,i)
     end do
     Rmean = Rmean/Number
-    print *, "Rm",Rmean
+  
     do i = 1, Number
       Gyradius = Gyradius + dot_product((this%Position(:,i)-Rmean),(this%Position(:,i)-Rmean))
     end do
