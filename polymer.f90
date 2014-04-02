@@ -64,14 +64,13 @@ contains
       this%AvWeight(2,i)=1
     end do
 
-
     this%NumberAngles=6
 
     this%PopulationLim=100
 
     this%Population=1
 
-    !print *, "UpLim: ", 10._8**10
+    call initWeights(this%Avweight(1,:), 3)
 
     open (100, file="polymerdata.txt", ACTION="write", STATUS="unknown", Position="append")
     call this%create(this%PolWeight, 3)
@@ -137,7 +136,7 @@ contains
     Lowlim=(1.2_8) * this%AvWeight(1,Number)/this%AvWeight(1,3)
     Uplim=(2._8) * this%AvWeight(1,Number)/this%AvWeight(1,3)
     print *, "upl",UpLim,"Lowl",Lowlim,"Polw", Polweight
-    !Lowlim=0
+    !Lowlim=1
     !Uplim=0
     ! -- recursive part
     if ( Number < this%Length ) then

@@ -1,0 +1,29 @@
+Structuur Polymer Report
+
+Introduction
+	• (possible) reason for studying polymers
+	• overview of model used and assumptions made
+	• 	
+
+Model
+	• dilute polymer solution
+	• -> effective repulsion of polymer segments
+	• mesoscopic model of polymer: chain of beads
+		• long distance attraction (Van der Waals)				|-> Lennard-Jones interaction
+		• short range repulsion (overlap and solvent effect)	|
+		• neighbouring segments have fixed mutual distance
+
+Algorithm
+	• Rosenbluth Algorithm
+		• initial configuration
+		• adding beads (weights, angles, ...)
+		• total weight factor of a polymor (because the R.A. has bias towards dense configurations, which is a trade-off of solving atrition)
+	• Pruning and Enriching (PERM)
+		• Cloning and killing procedure
+		• Choosing UpLim and LowLim
+
+Simulation and results
+	• Setup (how many polymers, other parameters, )
+
+	• End to end distance
+	• Gyradius

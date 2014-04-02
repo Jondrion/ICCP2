@@ -1,0 +1,11 @@
+\subsection*{Rosenbluth Algorithm}
+		• initial configuration
+		• adding beads (weights, angles, ...)
+		• total weight factor of a polymor (because the R.A. has bias towards dense configurations, which is a trade-off of solving atrition)
+
+The most basic method to simulate a SAW is that of simple sampling which goes as follows: place a first segment at the origin and a second one at unit distance. Choose a random angle to place the next segment at unit distance from the previous segment and check the self-avoidance. If the chain is self-avoiding, the growth process continues until the desired length is achieved. If not, the polymer is discarded and we start again from scratch. The completed SAW's are independent of each other and occur with the same probability but this probability gets exponentially small for increasing length N. This problem of very low efficiency is called the attrition problem.
+
+The Rosenbluth algorithm aims to solve this attrition problem by not putting the next bead in the chain at random but by scanning the environment for neighbouring beads and only choosing those directions which lead to self-avoidance.
+
+
+\subsection*{Pruning and Enriching (PERM)}
