@@ -5,6 +5,7 @@ program Poly
   implicit none
   real(8) :: temperature, epsilon, sigma
   real(8), allocatable :: Position(:,:)
+  integer :: i
 
 
   type(polymerType) :: pol
@@ -13,10 +14,13 @@ program Poly
   call parameters(temperature, epsilon, sigma)
   print *, "temperature=",temperature, "epsilon=",epsilon, "sigma", sigma
 
- 
-  call pol%init(100,temperature, epsilon, sigma)
-  
+  do i=1,999
+    call pol%init(50,temperature, epsilon, sigma)
+    call pol%destroy
+    print *, "iteration: ", i
+  end do
    
+  call pol%init(50,temperature, epsilon, sigma)
   call pol%get_Position(Position)
 
   call pol%plot

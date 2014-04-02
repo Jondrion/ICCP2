@@ -16,6 +16,7 @@ module polymer
     integer, private :: NumberAngles
     real(8), private :: PolWeight, temperature, epsilon, sigma
     real(8), allocatable, private :: Position(:,:)
+    real(8), allocatable, private :: AvWeight(:,:)
 
    contains
     private
@@ -37,6 +38,7 @@ contains
     class(polymerType) :: this
     integer, intent(in) :: Length
     real(8), intent(in) :: temperature, epsilon, sigma
+    integer :: i
     
     this%Length=Length
     allocate (this%Position(2,this%Length))
@@ -55,18 +57,26 @@ contains
     ! -- set polymer weight to 1
     this%PolWeight=1
 
+    ! -- allocate averageweight and initialize
+    allocate (this%AvWeight(2,this%Length))
+    do i=1,this%Length
+      this%AvWeight(1,i)=0
+      this%AvWeight(2,i)=1
+    end do
+
+
     this%NumberAngles=6
 
-    this%PopulationLim=1000
+    this%PopulationLim=100
 
     this%Population=1
 
-    print *, "UpLim: ", 10._8**10
+    !print *, "UpLim: ", 10._8**10
 
     open (100, file="polymerdata.txt", ACTION="write", STATUS="unknown", Position="append")
     call this%create(this%PolWeight, 3)
     close (100)
-    print *, "pop",this%Population, "sigma", this%sigma, "epsilon", this%epsilon
+    
   end subroutine
 
 
@@ -86,9 +96,9 @@ contains
     real(8) :: R
     real(8) :: EndtoEnd
     real(8) :: Gyradius
-  
-!     print *, "Population: ", this%Population
-!     print *, "Number: ", Number
+    real(8) :: Uplim, Lowlim
+
+
 
 
     ! -- Calculate weights w_j^L and their product W^L
@@ -110,19 +120,29 @@ contains
     this%Position(1,Number)=this%Position(1,Number-1)+SIN(New_Angle)
     this%Position(2,Number)=this%Position(2,Number-1)+COS(New_Angle)
 
-    ! -- Update PolWeight
-    PolWeight=PolWeight*SumWeights
+    ! -- Update PolWeight with correction for PREM
+    PolWeight=PolWeight*SumWeights/ (0.75_8 * this%NumberAngles)
+
+    ! -- Update AvWeight
+    this%AvWeight(1,Number)=(((this%AvWeight(2,Number) - 1)* this%AvWeight(1,Number)) + Polweight)/(this%AvWeight(2,Number))
+    this%Avweight(2,Number)=this%AvWeight(2,Number)+1
+
 
     ! -- write End to end and gyradius to a file
     call this%calc_EToE(EndtoEnd, Number)
     call this%calc_Gyradius(Gyradius, Number)
-    write (100, "(I10,F10.4,F10.4,I10)" ) Number, EndtoEnd, Gyradius, this%Population
+    write (100, "(I10,E18.5E4,F10.4,F10.4,I10)" ) Number, Polweight, EndtoEnd, Gyradius, this%Population
     
-
+    ! -- Determining Upper and lower limits for cloning and killing
+    Lowlim=(1.2_8) * this%AvWeight(1,Number)/this%AvWeight(1,3)
+    Uplim=(2._8) * this%AvWeight(1,Number)/this%AvWeight(1,3)
+    print *, "upl",UpLim,"Lowl",Lowlim,"Polw", Polweight
+    !Lowlim=0
+    !Uplim=0
     ! -- recursive part
     if ( Number < this%Length ) then
       ! -- kill if necessar
-      if ( PolWeight < 0 ) then
+      if ( PolWeight < Lowlim ) then
         call RANDOM_NUMBER(R)
         if ( R < 0.5 ) then
           NewWeight = 2 * PolWeight
@@ -132,7 +152,7 @@ contains
 
         end if
       ! -- clone if necessary
-      else if ( PolWeight > 10._8**5 .and. this%Population < this%PopulationLim ) then
+      else if ( PolWeight > Uplim .and. this%Population < this%PopulationLim ) then
         this%Population = this%Population+1
         NewWeight = 0.5 * PolWeight
         call this%create(NewWeight, Number+1)
@@ -143,7 +163,7 @@ contains
       end if
     else
 
-      print *, "Final Polymer Weight: ", PolWeight
+      !print *, "Final Polymer Weight: ", PolWeight
 
     end if
 
@@ -154,6 +174,7 @@ contains
     class(polymerType) :: this
 
     deallocate(this%Position)
+    deallocate(this%AvWeight)
   end subroutine
 
 
