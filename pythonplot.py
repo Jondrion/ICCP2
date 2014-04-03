@@ -12,7 +12,7 @@ varEtoE=np.zeros(len(lengths))
 avrEtoE=np.zeros(len(lengths))
 varGyradius=np.zeros(len(lengths))
 avrGyradius=np.zeros(len(lengths))
-
+datasize=np.zeros(len(lengths))
 
 i=0
 for l in lengths:
