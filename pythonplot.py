@@ -23,6 +23,8 @@ for l in lengths:
 	
 	avrGyradius[i]=np.average(lengthdata[:,3], weights=lengthdata[:,1])
 	varGyradius[i]=np.average((lengthdata[:,3] - avrGyradius[i])**2, weights=lengthdata[:,1])
+	datasize[i]=len(lengthdata[:,1])
+	del lenghtdata
 	i=i+1
 	
 
@@ -36,8 +38,22 @@ ax.set_xlabel('Length of the polymer $N$')
 ax.set_ylabel('End to End distance $R^2$')
 ax.set_xscale('log')
 ax.set_yscale('log')
-print(varEtoE**(1/2))
-ax.errorbar(lengths, avrEtoE**2,yerr=varEtoE,fmt='o', label="End to End distance")
+
+ax.errorbar(lengths, avrEtoE**2,yerr=varEtoE**(1/2),fmt='o', label="End to End distance")
 ax.plot(lengths, theo, 'r--', label="Theoretical End to End")
+ax.plot(lengths, datasize, 'go', label="Datasize")
 ax.legend(bbox_to_anchor=(0.8, 1.05))
+
+
+# fig2 = pyplot.figure("Polymerplot")
+# ax2 = fig2.add_subplot(111)
+# ax2.set_xlim(1,np.max(lengths))
+# ax2.set_xlabel('Length of the polymer $N$')
+# ax2.set_ylabel('Gyradius $G$')
+# ax2.set_xscale('log')
+# ax2.set_yscale('log')
+
+# ax2.errorbar(lengths, avrGyradius,yerr=varGyradius**(1/2),fmt='o', label="Gyradius")
+
+# ax2.legend(bbox_to_anchor=(0.8, 1.05))
 pyplot.show()
