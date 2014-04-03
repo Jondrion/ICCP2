@@ -75,6 +75,9 @@ contains
     call this%create(this%PolWeight, 3)
     close (100)
 
+    ! -- Reset PolWeight to 1 again
+    Polweight=1
+
     ! -- creating the actual polymers, these might be cloned or killed, creating a population of maximum size this%PopulationLim
     open (100, file="polymerdata.txt", ACTION="write", STATUS="unknown", Position="append")
     call this%create(this%PolWeight, 3)
@@ -140,8 +143,8 @@ contains
     Lowlim=(1.2_8) * this%AvWeight(1,Number)/this%AvWeight(1,3)
     Uplim=(2._8) * this%AvWeight(1,Number)/this%AvWeight(1,3)
 
-    !Lowlim=1
-    !Uplim=0
+    Lowlim=0
+    Uplim=0
     ! -- recursive part
     if ( Number < this%Length ) then
       ! -- kill if necessar
@@ -155,7 +158,7 @@ contains
 
         end if
       ! -- clone if necessary
-      else if ( PolWeight > Uplim .and. this%Population < this%PopulationLim ) then
+      else if ( PolWeight < Uplim .and. this%Population < this%PopulationLim ) then
         this%Population = this%Population+1
         NewWeight = 0.5 * PolWeight
         call this%create(NewWeight, Number+1)
@@ -308,7 +311,7 @@ contains
     integer, intent(in) :: Number    
     real(8), intent(out) :: EToE
 
-    EToE = SQRT(dot_product((this%Position(:,Number)-this%Position(:,1)),(this%Position(:,Number)-this%Position(:,1))))
+    EToE = (dot_product((this%Position(:,Number)-this%Position(:,1)),(this%Position(:,Number)-this%Position(:,1))))
     
   end subroutine calc_EToE
 
