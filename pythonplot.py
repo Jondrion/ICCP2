@@ -26,8 +26,6 @@ for l in lengths:
 	datasize[i]=len(lengthdata[:,1])
 	del lengthdata
 	i=i+1
-	
-
 
 theo=(lengths-1)**(1.5)
 
@@ -39,7 +37,7 @@ ax.set_ylabel('End to End distance $R^2$')
 ax.set_xscale('log')
 ax.set_yscale('log')
 
-ax.errorbar(lengths, avrEtoE**2,yerr=varEtoE**(1/2),fmt='o', label="End to End distance")
+ax.errorbar(lengths, avrEtoE,yerr=varEtoE**(1/2),fmt='o', label="End to End distance")
 ax.plot(lengths, theo, 'r--', label="Theoretical End to End")
 ax.plot(lengths, datasize, 'go', label="Datasize")
 ax.legend(bbox_to_anchor=(0.8, 1.05))

@@ -18,7 +18,7 @@ module polymer
     real(8), allocatable, private :: Position(:,:)
     real(8), allocatable, private :: AvWeight(:,:)
 
-   contains
+  contains
     private
      
     procedure, public :: init, destroy
@@ -28,7 +28,7 @@ module polymer
     procedure, public :: plot
     procedure, private :: plot_polymer
      
-   end type
+  end type
 
 contains
   
@@ -75,6 +75,10 @@ contains
     call this%create(this%PolWeight, 3)
     close (100)
 
+    ! -- set polymer weight and population size back to 1
+    this%PolWeight=1
+    this%Population=1
+
     ! -- creating the actual polymers, these might be cloned or killed, creating a population of maximum size this%PopulationLim
     open (100, file="polymerdata.txt", ACTION="write", STATUS="unknown", Position="append")
     call this%create(this%PolWeight, 3)
@@ -101,9 +105,6 @@ contains
     real(8) :: Gyradius
     real(8) :: Uplim, Lowlim
 
-
-
-
     ! -- Calculate weights w_j^L and their product W^L
     call this%calc_Angles(Angle,this%NumberAngles)
     call this%calc_Energy(Angle,Number,Energy)
@@ -117,8 +118,6 @@ contains
 
     call this%choose_Angle(Angle, Norm_Weights, New_Angle)
 
-    
-
     ! -- Add bead number L
     this%Position(1,Number)=this%Position(1,Number-1)+SIN(New_Angle)
     this%Position(2,Number)=this%Position(2,Number-1)+COS(New_Angle)
@@ -130,7 +129,6 @@ contains
     this%AvWeight(1,Number)=(((this%AvWeight(2,Number) - 1)* this%AvWeight(1,Number)) + Polweight)/(this%AvWeight(2,Number))
     this%Avweight(2,Number)=this%AvWeight(2,Number)+1
 
-
     ! -- write End to end and gyradius to a file
     call this%calc_EToE(EndtoEnd, Number)
     call this%calc_Gyradius(Gyradius, Number)
@@ -140,7 +138,7 @@ contains
     Lowlim=(1.2_8) * this%AvWeight(1,Number)/this%AvWeight(1,3)
     Uplim=(2._8) * this%AvWeight(1,Number)/this%AvWeight(1,3)
 
-    !Lowlim=1
+    !Lowlim=0
     !Uplim=0
     ! -- recursive part
     if ( Number < this%Length ) then
@@ -148,14 +146,16 @@ contains
       if ( PolWeight < Lowlim ) then
         call RANDOM_NUMBER(R)
         if ( R < 0.5 ) then
+          print *, "DONT KILL"
           NewWeight = 2 * PolWeight
           call this%create(NewWeight, Number+1)
         else
-!           this%Population = this%Population-1
+          print *, "KILL"
 
         end if
       ! -- clone if necessary
       else if ( PolWeight > Uplim .and. this%Population < this%PopulationLim ) then
+        print *, "CLONE"
         this%Population = this%Population+1
         NewWeight = 0.5 * PolWeight
         call this%create(NewWeight, Number+1)
@@ -165,7 +165,7 @@ contains
         call this%create(PolWeight, Number+1)
       end if
     else
-
+      ! -- End of polymer, nothing happens now.
     end if
 
   end subroutine
@@ -173,7 +173,6 @@ contains
 
   subroutine destroy(this)
     class(polymerType) :: this
-
     deallocate(this%Position)
     deallocate(this%AvWeight)
   end subroutine
@@ -302,13 +301,14 @@ contains
 
   end subroutine calc_Gyradius
 
+
   subroutine calc_EToE(this, EToE, Number)
 
     class(polymerType) :: this
     integer, intent(in) :: Number    
     real(8), intent(out) :: EToE
 
-    EToE = SQRT(dot_product((this%Position(:,Number)-this%Position(:,1)),(this%Position(:,Number)-this%Position(:,1))))
+    EToE = (dot_product((this%Position(:,Number)-this%Position(:,1)),(this%Position(:,Number)-this%Position(:,1))))
     
   end subroutine calc_EToE
 
@@ -372,13 +372,8 @@ contains
     min = min - border
     max = max + border
 
-    
-    
-    
     Write( weightstring, '(A7,ES10.3)' )  "Weight: ",this%PolWeight
-    
 
-    
     call plcol0(7)
     call plenv(min, max, min, max, 0, 0)
     call pllab("x", "y", weightstring)
