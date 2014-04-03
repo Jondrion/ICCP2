@@ -24,7 +24,7 @@ for l in lengths:
 	avrGyradius[i]=np.average(lengthdata[:,3], weights=lengthdata[:,1])
 	varGyradius[i]=np.average((lengthdata[:,3] - avrGyradius[i])**2, weights=lengthdata[:,1])
 	datasize[i]=len(lengthdata[:,1])
-	del lenghtdata
+	del lengthdata
 	i=i+1
 	
 
