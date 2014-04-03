@@ -60,8 +60,8 @@ contains
     ! -- allocate averageweight and initialize
     allocate (this%AvWeight(2,this%Length))
     do i=1,this%Length
-      this%AvWeight(1,i)=0
-      this%AvWeight(2,i)=1
+      this%AvWeight(1,i)=0._8
+      this%AvWeight(2,i)=1._8
     end do
 
     this%NumberAngles=6
@@ -70,8 +70,12 @@ contains
 
     this%Population=1
 
-    call initWeights(this%Avweight(1,:), 3)
+    ! -- creating one initial polymer, this sets an inital value for the average weights for each length
+    open (100, file="initialpolymer.txt", ACTION="write", STATUS="unknown", Position="append")
+    call this%create(this%PolWeight, 3)
+    close (100)
 
+    ! -- creating the actual polymers, these might be cloned or killed, creating a population of maximum size this%PopulationLim
     open (100, file="polymerdata.txt", ACTION="write", STATUS="unknown", Position="append")
     call this%create(this%PolWeight, 3)
     close (100)
@@ -135,7 +139,7 @@ contains
     ! -- Determining Upper and lower limits for cloning and killing
     Lowlim=(1.2_8) * this%AvWeight(1,Number)/this%AvWeight(1,3)
     Uplim=(2._8) * this%AvWeight(1,Number)/this%AvWeight(1,3)
-    print *, "upl",UpLim,"Lowl",Lowlim,"Polw", Polweight
+
     !Lowlim=1
     !Uplim=0
     ! -- recursive part
@@ -147,7 +151,7 @@ contains
           NewWeight = 2 * PolWeight
           call this%create(NewWeight, Number+1)
         else
-          this%Population = this%Population-1
+!           this%Population = this%Population-1
 
         end if
       ! -- clone if necessary
@@ -161,8 +165,6 @@ contains
         call this%create(PolWeight, Number+1)
       end if
     else
-
-      !print *, "Final Polymer Weight: ", PolWeight
 
     end if
 
