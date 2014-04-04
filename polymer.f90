@@ -14,15 +14,15 @@ module polymer
     integer, private :: Length
     integer, private :: Population, PopulationLim
     integer, private :: NumberAngles
-    real(8), private :: PolWeight, temperature, epsilon, sigma
+    real(8), private :: temperature, epsilon, sigma
     real(8), allocatable, private :: Position(:,:)
     real(8), allocatable, private :: AvWeight(:,:)
 
   contains
     private
      
-    procedure, public :: init, destroy
-    procedure, private :: create, calc_Angles, calc_Energy, calc_Weights, calc_Gyradius, calc_EToE
+    procedure, public :: init, create, reset, destroy
+    procedure, private :: calc_Angles, calc_Energy, calc_Weights, calc_Gyradius, calc_EToE
     procedure, private :: choose_Angle, cumsum
     procedure, public :: get_Position, get_Length
     procedure, public :: plot
@@ -54,35 +54,23 @@ contains
     this%Position(1,2)=0
     this%Position(2,2)=1
 
-    ! -- set polymer weight to 1
-    this%PolWeight=1
-
+  
     ! -- allocate averageweight and initialize
     allocate (this%AvWeight(2,this%Length))
     do i=1,this%Length
-      this%AvWeight(1,i)=0._8
+      this%AvWeight(1,i)=1._8
       this%AvWeight(2,i)=1._8
     end do
 
     this%NumberAngles=6
 
-    this%PopulationLim=100
+    this%PopulationLim=1000
 
-    this%Population=1
-
-    ! -- creating one initial polymer, this sets an inital value for the average weights for each length
-    open (100, file="initialpolymer.txt", ACTION="write", STATUS="unknown", Position="append")
-    call this%create(this%PolWeight, 3)
-    close (100)
-
-    ! -- set polymer weight and population size back to 1
-    this%PolWeight=1
     this%Population=1
 
     ! -- creating the actual polymers, these might be cloned or killed, creating a population of maximum size this%PopulationLim
     open (100, file="polymerdata.txt", ACTION="write", STATUS="unknown", Position="append")
-    call this%create(this%PolWeight, 3)
-    close (100)
+      
     
   end subroutine
 
@@ -126,17 +114,17 @@ contains
     PolWeight=PolWeight*SumWeights/ (0.75_8 * this%NumberAngles)
 
     ! -- Update AvWeight
-    this%AvWeight(1,Number)=(((this%AvWeight(2,Number) - 1)* this%AvWeight(1,Number)) + Polweight)/(this%AvWeight(2,Number))
-    this%Avweight(2,Number)=this%AvWeight(2,Number)+1
+    this%AvWeight(1,Number)=(((this%AvWeight(2,Number) - 1)* this%AvWeight(1,Number)) + PolWeight)/(this%AvWeight(2,Number))
+    this%AvWeight(2,Number)=this%AvWeight(2,Number)+1
 
     ! -- write End to end and gyradius to a file
     call this%calc_EToE(EndtoEnd, Number)
     call this%calc_Gyradius(Gyradius, Number)
-    write (100, "(I10,E18.5E4,F10.4,F10.4,I10)" ) Number, Polweight, EndtoEnd, Gyradius, this%Population
+    write (100, "(I10,E18.5E4,F20.4,F20.4,I10)" ) Number, PolWeight, EndtoEnd, Gyradius, this%Population
     
     ! -- Determining Upper and lower limits for cloning and killing
     Lowlim=(1.2_8) * this%AvWeight(1,Number)/this%AvWeight(1,3)
-    Uplim=(2._8) * this%AvWeight(1,Number)/this%AvWeight(1,3)
+    Uplim=(2.2_8) * this%AvWeight(1,Number)/this%AvWeight(1,3)
 
     !Lowlim=0
     !Uplim=0
@@ -146,26 +134,29 @@ contains
       if ( PolWeight < Lowlim ) then
         call RANDOM_NUMBER(R)
         if ( R < 0.5 ) then
-          print *, "DONT KILL"
+         
+          this%Population = this%Population
           NewWeight = 2 * PolWeight
           call this%create(NewWeight, Number+1)
         else
-          print *, "KILL"
+        
 
         end if
       ! -- clone if necessary
       else if ( PolWeight > Uplim .and. this%Population < this%PopulationLim ) then
-        print *, "CLONE"
+       
         this%Population = this%Population+1
         NewWeight = 0.5 * PolWeight
         call this%create(NewWeight, Number+1)
         NewWeight = 0.5 * PolWeight
         call this%create(NewWeight, Number+1)
       else
+        
         call this%create(PolWeight, Number+1)
       end if
     else
       ! -- End of polymer, nothing happens now.
+      
     end if
 
   end subroutine
@@ -173,10 +164,26 @@ contains
 
   subroutine destroy(this)
     class(polymerType) :: this
+
+    close (100)
+    
     deallocate(this%Position)
-    deallocate(this%AvWeight)
+    deallocate(this%Avweight)
   end subroutine
 
+  subroutine reset(this)
+    class(polymerType) :: this
+
+    
+    this%Population=1
+    deallocate(this%Position)
+    allocate (this%Position(2,this%Length))
+    this%Position(1,1)=0
+    this%Position(2,1)=0
+    this%Position(1,2)=0
+    this%Position(2,2)=1
+    
+  end subroutine
 
   subroutine calc_Angles(this, Angle, N)
 
@@ -209,7 +216,7 @@ contains
     integer :: i,j
 
     E=0
-
+    
     ! -- calculate position given the angle
     new_pos(1,:) = this%Position(1,N-1) + SIN(Angle(:))
     new_pos(2,:) = this%Position(2,N-1) + COS(Angle(:))
@@ -372,7 +379,7 @@ contains
     min = min - border
     max = max + border
 
-    Write( weightstring, '(A7,ES10.3)' )  "Weight: ",this%PolWeight
+    Write( weightstring, '(A7,ES10.3)' )  "Weight: "
 
     call plcol0(7)
     call plenv(min, max, min, max, 0, 0)

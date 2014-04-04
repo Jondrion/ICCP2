@@ -3,8 +3,7 @@ program Poly
   use polymer
 
   implicit none
-  real(8) :: temperature, epsilon, sigma
-  real(8), allocatable :: Position(:,:)
+  real(8) :: temperature, epsilon, sigma, Weight
   integer :: i
   type(polymerType) :: pol
 
@@ -17,11 +16,18 @@ program Poly
   call parameters(temperature, epsilon, sigma)
   print *, "temperature=",temperature, "epsilon=",epsilon, "sigma", sigma
 
-  do i=1,4999
-    call pol%init(100,temperature, epsilon, sigma)
-    call pol%destroy
+  Weight=1._8
+  call pol%init(350,temperature, epsilon, sigma)
+  do i=1,5000
+    
+    call pol%create(Weight,3)    
+    call pol%reset
+    Weight=1._8
+
     print *, "iteration: ", i
   end do
+  
+  call pol%destroy
   
 end program
 
