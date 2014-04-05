@@ -5,9 +5,9 @@ import numpy as np
 
 filedata=np.genfromtxt("polymerdata.txt")
 
-sorteddata=filedata[np.argsort(filedata[:,0])]
 
-lengths=np.unique(sorteddata[:,0])
+
+lengths=np.unique(filedata[:,0])
 
 errEtoE=np.zeros(len(lengths))
 avrEtoE=np.zeros(len(lengths))
@@ -17,7 +17,7 @@ datasize=np.zeros(len(lengths))
 
 i=0
 for l in lengths:
-	lengthdata=sorteddata[sorteddata[:,0]==l]
+	lengthdata=filedata[filedata[:,0]==l]
 
 	datasize[i]=len(lengthdata[:,1])
 	
