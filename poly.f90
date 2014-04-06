@@ -18,7 +18,7 @@ program Poly
 
   Weight=1._8
   call pol%init(350,temperature, epsilon, sigma)
-  do i=1,5000
+  do i=1,10000
     
     call pol%create(Weight,3)    
     call pol%reset

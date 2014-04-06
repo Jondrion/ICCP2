@@ -3,9 +3,11 @@ from matplotlib import pyplot
 from scipy.optimize import curve_fit
 import numpy as np
 
+print("start reading polymerdata.txt")
+
 filedata=np.genfromtxt("polymerdata.txt")
 
-
+print("done reading polymerdata.txt")
 
 lengths=np.unique(filedata[:,0])
 

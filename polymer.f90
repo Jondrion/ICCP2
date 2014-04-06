@@ -4,6 +4,7 @@ module polymer
   implicit none
 
   real(8), parameter :: PI = 4 * atan(1d0)
+  real(8), allocatable, private :: AvWeight(:,:)
 
   private
 
@@ -16,7 +17,6 @@ module polymer
     integer, private :: NumberAngles
     real(8), private :: temperature, epsilon, sigma
     real(8), allocatable, private :: Position(:,:)
-    real(8), allocatable, private :: AvWeight(:,:)
 
   contains
     private
@@ -56,15 +56,15 @@ contains
 
   
     ! -- allocate averageweight and initialize
-    allocate (this%AvWeight(2,this%Length))
+    allocate (AvWeight(2,this%Length))
     do i=1,this%Length
-      this%AvWeight(1,i)=1._8
-      this%AvWeight(2,i)=1._8
+      AvWeight(1,i)=1._8
+      AvWeight(2,i)=1._8
     end do
 
     this%NumberAngles=6
 
-    this%PopulationLim=1000
+    this%PopulationLim=1
 
     this%Population=1
 
@@ -114,19 +114,19 @@ contains
     PolWeight=PolWeight*SumWeights/ (0.75_8 * this%NumberAngles)
 
     ! -- Update AvWeight
-    this%AvWeight(1,Number)=(((this%AvWeight(2,Number) - 1)* this%AvWeight(1,Number)) + PolWeight)/(this%AvWeight(2,Number))
-    this%AvWeight(2,Number)=this%AvWeight(2,Number)+1
+    AvWeight(1,Number)= AvWeight(1,Number) + PolWeight
+    AvWeight(2,Number)=AvWeight(2,Number)+1
 
     ! -- write End to end and gyradius to a file
     call this%calc_EToE(EndtoEnd, Number)
     call this%calc_Gyradius(Gyradius, Number)
-    write (100, "(I10,E18.5E4,F20.4,F20.4,I10)" ) Number, PolWeight, EndtoEnd, Gyradius, this%Population
+    write (100, "(I10,E18.5E4,F20.4,F20.4)" ) Number, PolWeight, EndtoEnd, Gyradius
     
     ! -- Determining Upper and lower limits for cloning and killing
-    Lowlim=(1.2_8) * this%AvWeight(1,Number)/this%AvWeight(1,3)
-    Uplim=(2.2_8) * this%AvWeight(1,Number)/this%AvWeight(1,3)
+    Lowlim=(1.2_8) * AvWeight(1,Number)/AvWeight(1,3)
+    Uplim=(2.2_8) * AvWeight(1,Number)/AvWeight(1,3)
 
-    !Lowlim=0
+    Lowlim=0
     !Uplim=0
     ! -- recursive part
     if ( Number < this%Length ) then
@@ -144,10 +144,13 @@ contains
         end if
       ! -- clone if necessary
       else if ( PolWeight > Uplim .and. this%Population < this%PopulationLim ) then
-       
+!         print *, "N : ", Number, "Population: ", this%population
+!         print *, "AvWeight1: ", AvWeight
         this%Population = this%Population+1
         NewWeight = 0.5 * PolWeight
         call this%create(NewWeight, Number+1)
+!         print *, "N : ", Number, "Population: ", this%population
+!         print *, "AvWeight2: ", AvWeight
         NewWeight = 0.5 * PolWeight
         call this%create(NewWeight, Number+1)
       else
@@ -168,7 +171,7 @@ contains
     close (100)
     
     deallocate(this%Position)
-    deallocate(this%Avweight)
+    deallocate(AvWeight)
   end subroutine
 
   subroutine reset(this)
