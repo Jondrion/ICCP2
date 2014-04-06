@@ -1,21 +1,21 @@
 \subsection*{Results}
 \subsubsection*{Average End-to-end distance $R$}
 
-In Figure \ref{fig:etoe} the square of the average End-to-end distance $R^2$ as a function of length $N$ is seen.
+In Figure \ref{fig:etoe} the square of the average End-to-end distance $R^2$ is plotted on a log-log scale.
 
 \begin{figure}[htb]
         \centering
         \begin{subfigure}[b]{0.45\textwidth}
                 \centering
-                \includegraphics[width=\textwidth]{voorblad.pdf}
-                \caption{Without Pruning and Enrichment, $a= ...$.}
+                \includegraphics[width=\textwidth]{figures/N350_I10000_E2E_RR1}
+                \caption{Without Pruning and Enrichment.}
                 \label{fig:etoe_noprem}
         \end{subfigure}
 	\quad
         \begin{subfigure}[b]{0.45\textwidth}
                 \centering
-                \includegraphics[width=\textwidth]{voorblad.pdf}
-                \caption{With Pruning and Enrichment, $a= ...$.}
+                \includegraphics[width=\textwidth]{figures/N350_E2E_PERM1}
+                \caption{With Pruning and Enrichment.}
                 \label{fig:etoe_prem}
         \end{subfigure}
         \caption{Square of the End-to-end distance $R^2$ as a function of polymer length $N$, the red dotted line is the theoretical fit of $R^2=a\cdot N^{3/2}$ to the data, the population sizes for each length $N$ are given as well.}
@@ -27,12 +27,12 @@ It is seen that the results for $N>100$ are a lot better if PERM is being implem
 
 \subsubsection*{Average Gyradius $G$}
 
-In Figure \ref{fig:gyradius} the average Gyaradius $G$ as a function of length $N$ is seen.
+In Figure \ref{fig:gyradius} the average Gyaradius $G$ is plotted on a log-log scale.
 
 
 \begin{figure}[ht!]
 \centering
-\includegraphics[width=0.5\textwidth]{voorblad.pdf}
-\caption{Gyradius $G$ as a function of polymer length $N$. The data is fitted to $G=a\cdot N^b$}
+\includegraphics[width=0.5\textwidth]{figures/N350_Gyradius_PERM1}
+\caption{Gyradius $G$ as a function of polymer length $N$.}
 \label{fig:gyradius}
 \end{figure}
