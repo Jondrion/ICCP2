@@ -2,7 +2,7 @@ Polymers are composed of an integer number of unit-segments, or monomers, which 
 
 Such a polymer can be modelled by representing each segment as a ``bead'' which has a fixed distance to the previous bead. Depending on the polymer and the solvent a force, which acts between the beads, can be introduced. In this research a dilute polymer solution in 2D is simulated and the force between beads is modelled as a Lennard-Jones force.
 
-A common method used for simulating polymers like this is the Rosenbluth algorithm, which adds subsequent beads trying to avoid high energy configurations. In this research we will make use of a Rosenbluth like algorithm which makes additional use of a pruning and enrichment strategy to build polymers. This strategy promotes low energy configurations and kills high energy configurations. 
-Interesting properties, which are studied, are the average End-to-end distance as a function of length and how compact the polymer becomes as a function of length, this can be expressed in terms of the radius of gyration, or Gyradius.
+A common method used for simulating polymers like this is the Rosenbluth algorithm, which adds subsequent beads while avoiding high energy configurations. In this research we will make use of a Rosenbluth like algorithm which makes additional use of a pruning and enrichment strategy to build polymers. This strategy promotes low energy configurations and kills high energy configurations. 
+Interesting properties, which are studied, are the average End-to-end distance as a function of length and how compact the polymer becomes as a function of length. The latter can be expressed in terms of the radius of gyration, or Gyradius.
 
-Unless stated elsewise, reference are to \cite{baschnagel2004} for the algorithm section and \cite{thijssen2007} for the simulation section.
+Unless stated elsewise, references are to \cite{baschnagel2004} for the algorithm section and \cite{thijssen2007} for the simulation section.

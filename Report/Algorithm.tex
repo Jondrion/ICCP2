@@ -16,7 +16,7 @@ The bias towards dense configurations also means that the RR method is not usefu
 \subsection*{Pruning and Enriching (PERM)}
 A more modern algorithm is the Pruned-Enriched Rosenbluth Method or PERM. The main idea of PERM is to keep the distribution of weights within certain bounds by killing polymers with a small weight and cloning polymers with a large weight.
 
-Suppose that a polymer chain is created up to bead number $i$ using the RR method and has a weight $W_i$. In order to prevent this $W_i$ from fluctuating the sample should be either ``pruned" or ``enriched" when this weight becomes too small or too large respectively. This is done in the following way:
+Suppose that a polymer chain is created up to bead number $i$ using the RR method and has a weight $W_i$. In order to prevent this $W_i$ from fluctuating, the sample should be either ``pruned" or ``enriched" when this weight becomes too small or too large respectively. This is done in the following way:
 
 \begin{itemize}
   \item If $W_i$ becomes too small (i.e. $W_i < \textup{LowLim}$) the polymer is destroyed with a probability of 50\%. If the polymer is not destroyed, its weight is doubled and the growth continues.
@@ -36,7 +36,7 @@ One way of getting good choices for the upper and lower limit is by updating the
 Choise of $\alpha_-$ and $\alpha_+$ will determine whether the population grows, shrinks or remains constant.
 
 \subsection*{Rosenbluth and dilute polymer solutions}
-One last important thing to note is that the methods described so far all use uniform probability for choosing from the available angles when placing a next bead. This is not a good simulation of a polymer in a solution because in that case there should be a inter-monomer potential and the angles should be chosen with a probability proportional to the corresponding polymer energy.
+One last important thing to note is that the methods described so far all use uniform probability for choosing from the available angles when placing a next bead. This is not a good simulation of a polymer in a solution because in that case there should be an inter-monomer potential and the angles should be chosen with a probability proportional to the corresponding polymer energy.
 Therefore a routine is used in which the possible angles of a new bead are discretised and for each of these discrete angles the interaction energy with the existing polymer chain is calculated. These energies $E\!\left(\theta_j\right)$ are used to calculate the weights:
 
 \begin{equation}
