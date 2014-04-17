@@ -1,7 +1,7 @@
 \subsection*{Results}
 \subsubsection*{Average End-to-end distance $R$}
 
-In Figure \ref{fig:etoe_rr} and \ref{fig:etoe_perm} the square of the average End-to-end distance $R^2$ is plotted on a log-log scale. It is seen that the results for $N>100$ are a lot better if the PERM algorithm is used. Just as expected and explained earlier, the variance for large polymers becomes bigger when using the standard Rosenbluth algorithm, which is why there is a noticable deviation from the theoretical fit for $N>100$. In the case of the PERM algorithm, the population size is also plotted and remains fairly constant, especially for lengths below $N \approx 100$.
+In Figure \ref{fig:etoe_rr} and \ref{fig:etoe_perm} the square of the average End-to-end distance $R^2$ as a function of length $N$ is plotted on a log-log scale. It is seen that the results for $N>100$ are a lot better if the PERM algorithm is used. Just as expected and explained earlier, the variance for large polymers becomes bigger when using the standard Rosenbluth algorithm, which is why there is a noticable deviation from the theoretical fit for $N>100$. In the case of the PERM algorithm, the population size is also plotted and remains fairly constant, especially for lengths below $N \approx 100$.
 
 \begin{figure}[ht!]
 \centering
@@ -19,18 +19,19 @@ In Figure \ref{fig:etoe_rr} and \ref{fig:etoe_perm} the square of the average En
 
 \subsubsection*{Average Gyradius $G$}
 
-Radius of gyration or gyradius is a measure of the size of a configuration. Is is the root mean square distance of the beads in a configuration to the centre of mass. The gyradius is thus calculated as:
+Radius of gyration or gyradius is a measure of the size of a configuration. It is the root mean square distance of the beads in a configuration to the centre of mass. The gyradius is thus calculated as:
 
 \begin{equation}
     G^2 = \frac{1}{N} \sum_{i=1}^N \left( \mathbf{x_i} - \mathbf{x_{mean}} \right)^2
 \end{equation}
 with $\mathbf{x_{mean}}$ the mean position of the beads, which is the same as the centre of mass since all beads have identical mass. One reason that the radius of gyration is an interesting property is that it can be determined experimentally with static light scattering as well as with small angle neutron- and x-ray scattering. This allows theoretical polymer physicists to check their models against reality.\cite{grosberg1994}
 
-In Figure \ref{fig:gyradius} the average Gyaradius $G$ is plotted on a linear scale. The data used is that of the same PERM simulation as in figure \ref{fig:etoe_perm}.
+In Figure \ref{fig:gyradius} the average Gyaradius $G$ is plotted on a linear scale as a function of length $N$. The data used is that of the same PERM simulation as in figure \ref{fig:etoe_perm}.
 
 \begin{figure}[ht!]
 \centering
+<<<<<<< HEAD
 \includegraphics[width=0.8\textwidth]{figures/N350_Gyradius_PERM3}
-\caption{Gyradius $G$ as a function of polymer length $N$.}
+\caption{Gyradius $G$ as a function of polymer length $N$. The data is fitted to $G=a\cdot N^b$.}
 \label{fig:gyradius}
 \end{figure}
