@@ -1,5 +1,6 @@
 subroutine init_random_seed()
   implicit none
+
   integer, allocatable :: seed(:)
   integer :: i, n, un, istat, dt(8), pid, t(2), s
   integer(8) :: count, tms
@@ -40,4 +41,5 @@ subroutine init_random_seed()
      end if
   end if
   call random_seed(put=seed)
+  
 end subroutine init_random_seed

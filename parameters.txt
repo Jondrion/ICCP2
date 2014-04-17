@@ -1,3 +1,7 @@
 1.0 temperature
 0.25 epsilon
 0.8 sigma
+250 number of beads
+6 number of angles
+1000 number of polymers to start with
+.true. use perm

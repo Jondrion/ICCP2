@@ -7,7 +7,6 @@ The Rosenbluth algorithm (also called RR) aims to solve this attrition problem b
 \begin{equation} \label{eq:prob_RR}
 	P\!\left(\mathbf{x}\right) = \prod_{i=1}^{N} \frac{1}{n_i} .
 \end{equation}
-
 Here $n_i$ is the number of open directions for adding bead number $i$ and $\mathbf{x}$ is the position vector of all the beads in the polymer.
 
 Polymers that have a smaller $n_i$ have thus a higher probability of being generated and this method therefore has a bias towards dense configurations. This bias can be corrected for by incorporating the weight $W\!\left( \mathbf{x} \right) \propto 1/ P\!\left( \mathbf{x} \right)$ when calculating observables.
@@ -28,13 +27,13 @@ Important is to note that no choice of LowLim and UpLim can render the algorithm
 
 One way of getting good choices for the upper and lower limit is by updating them according to previously obtained weights. This is done by calculating the average weight at each step $i$ of the algorithm: $\left \langle W_i \right \rangle$. This average is updated for every polymer reaching the length $i$. Now the bounds are calculated according to:
 
-\begin{align} \label{eq:LowLim_UpLim}
+\begin{equation} \label{eq:LowLim_UpLim}
+\begin{aligned}
 	\textup{LowLim} &= \alpha_- \left \langle W_i \right \rangle / \left \langle W_3 \right \rangle \\
 	\textup{UpLim} &= \alpha_+ \left \langle W_i \right \rangle / \left \langle W_3 \right \rangle
-\end{align}
-
+\end{aligned}
+\end{equation}
 Choise of $\alpha_-$ and $\alpha_+$ will determine whether the population grows, shrinks or remains constant.
-
 
 \subsection*{Rosenbluth and dilute polymer solutions}
 One last important thing to note is that the methods described so far all use uniform probability for choosing from the available angles when placing a next bead. This is not a good simulation of a polymer in a solution because in that case there should be a inter-monomer potential and the angles should be chosen with a probability proportional to the corresponding polymer energy.
